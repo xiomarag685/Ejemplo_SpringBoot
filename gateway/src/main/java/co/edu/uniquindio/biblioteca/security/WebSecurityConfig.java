@@ -9,7 +9,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Configuration
 @EnableWebFluxSecurity
 public class WebSecurityConfig {
@@ -19,6 +19,9 @@ public class WebSecurityConfig {
     public static final String USER = "user";
     private final JwtAuthConverter jwtAuthConverter;
 
+    public WebSecurityConfig(JwtAuthConverter jwtAuthConverter) {
+        this.jwtAuthConverter = jwtAuthConverter;
+    }
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
@@ -26,11 +29,12 @@ public class WebSecurityConfig {
 
         http
                 .authorizeExchange( e ->
-                        e.pathMatchers("/api/test/anonimo").permitAll()
+                        e.pathMatchers("/api/test/anonymous").permitAll()
                                 .pathMatchers("/api/test/admin").hasRole(ADMIN)
                                 .pathMatchers("/api/test/user").hasAnyRole(ADMIN, USER)
-                                .anyExchange().authenticated());
-
+                                .pathMatchers("/api/cliente/{idCliente}").hasRole(ADMIN)
+                                .pathMatchers("/api/cliente").hasRole(ADMIN)
+                                .anyExchange().authenticated());;
 
         http.oauth2ResourceServer()
                 .jwt()
